@@ -1,20 +1,7 @@
-<!---
-
-This file is used to generate your project datasheet. Please fill in the information below and delete any unused
-sections.
-
-You can also include images in this folder and reference them in the markdown. Each image must be less than
-512 kb in size, and the combined size of all images must be less than 1 MB.
--->
-
 ## How it works
 
-Explain how your project works
+This project implements a 1-digit countdown timer from 9 to 0 for Tiny Tapeout. When reset (`rst_n` low) is released, the counter starts at 9 and decrements by 1 on each rising clock edge while `ui[0]` (`enable`) is high until reaching 0. The current digit is decoded to a 7-segment display pattern on `uo[6:0]`, and `uo[7]` (`done_zero`) asserts high when the counter reaches 0.
 
 ## How to test
 
-Explain how to use your project
-
-## External hardware
-
-List external hardware used in your project (e.g. PMOD, LED display, etc), if any
+Drive `rst_n` low to reset the counter to 9, then set `rst_n` high and assert `ui[0]` (`enable`) high across clock cycles. Observe the 7-segment outputs on `uo[6:0]` stepping down to 0 and verify `uo[7]` (`done_zero`) turns high when the count reaches 0.
