@@ -45,7 +45,7 @@ async def test_project(dut):
     dut._log.info("Test countdown 9 -> 0")
     dut.ui_in.value = 1
     for expected_digit in range(8, -1, -1):
-        await ClockCycles(dut.clk, 1)
+        await ClockCycles(dut.clk, 2)
         uo = int(dut.uo_out.value)
         seg = uo & 0x7F
         done_zero = (uo >> 7) & 0x1
