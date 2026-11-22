@@ -3,7 +3,7 @@
 
 import cocotb
 from cocotb.clock import Clock
-from cocotb.triggers import ClockCycles
+from cocotb.triggers import ClockCycles, ReadOnly
 
 SEG_PATTERNS = {
     0: 0b0111111,
@@ -35,17 +35,18 @@ async def test_project(dut):
     dut.rst_n.value = 0
     await ClockCycles(dut.clk, 10)
     dut.rst_n.value = 1
-    await ClockCycles(dut.clk, 1)
+    await ReadOnly()
 
     # Should start at 9 with done_zero = 0
     assert int(dut.uo_out.value) & 0x7F == SEG_PATTERNS[9]
     assert (int(dut.uo_out.value) >> 7) & 0x1 == 0
 
-    # Enable countdown from 9 down to 0
+    # Enable countdown from 9 down to 0 (1 step per clock cycle)
     dut._log.info("Test countdown 9 -> 0")
     dut.ui_in.value = 1
     for expected_digit in range(8, -1, -1):
-        await ClockCycles(dut.clk, 2)
+        await ClockCycles(dut.clk, 1)
+        await ReadOnly()
         uo = int(dut.uo_out.value)
         seg = uo & 0x7F
         done_zero = (uo >> 7) & 0x1
@@ -56,6 +57,7 @@ async def test_project(dut):
 
     # Stay at 0 on subsequent clock cycles while enabled
     await ClockCycles(dut.clk, 2)
+    await ReadOnly()
     uo = int(dut.uo_out.value)
     assert (uo & 0x7F) == SEG_PATTERNS[0]
     assert ((uo >> 7) & 0x1) == 1
