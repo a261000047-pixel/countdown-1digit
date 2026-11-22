@@ -35,15 +35,18 @@ async def test_project(dut):
     dut.rst_n.value = 0
     await ClockCycles(dut.clk, 10)
     dut.rst_n.value = 1
+    await ClockCycles(dut.clk, 1)
     await ReadOnly()
 
     # Should start at 9 with done_zero = 0
     assert int(dut.uo_out.value) & 0x7F == SEG_PATTERNS[9]
     assert (int(dut.uo_out.value) >> 7) & 0x1 == 0
 
-    # Enable countdown from 9 down to 0 (1 step per clock cycle)
+    # Advancing a clock cycle exits ReadOnly phase so we can drive ui_in
+    await ClockCycles(dut.clk, 1)
     dut._log.info("Test countdown 9 -> 0")
     dut.ui_in.value = 1
+
     for expected_digit in range(8, -1, -1):
         await ClockCycles(dut.clk, 1)
         await ReadOnly()
